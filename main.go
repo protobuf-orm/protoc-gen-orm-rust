@@ -49,7 +49,7 @@ func main() {
 func fail(err error) { fmt.Fprintln(os.Stderr, err); os.Exit(1) }
 
 func generate(req *pluginpb.CodeGeneratorRequest, resp *pluginpb.CodeGeneratorResponse) error {
-	if req.GetParameter() != "" {
+	if req.GetParameter() != "" && req.GetParameter() != "storage_model" {
 		return fmt.Errorf("unexpected plugin parameter %q", req.GetParameter())
 	}
 	files, err := protodesc.NewFiles(&descriptorpb.FileDescriptorSet{File: req.ProtoFile})
@@ -58,6 +58,9 @@ func generate(req *pluginpb.CodeGeneratorRequest, resp *pluginpb.CodeGeneratorRe
 	}
 	names := append([]string(nil), req.FileToGenerate...)
 	sort.Strings(names)
+	if req.GetParameter() == "storage_model" {
+		return storageModel(files, names, resp)
+	}
 	for _, name := range names {
 		f, err := files.FindFileByPath(name)
 		if err != nil {

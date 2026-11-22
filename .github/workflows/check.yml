@@ -13,11 +13,14 @@ jobs:
       - run: go test ./...
       - run: go install .
       - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ github.token }}
       - name: Check generated ORM helpers
         working-directory: example
         run: |
           buf generate --template '{"version":"v2","plugins":[{"local":"protoc-gen-orm-rust","out":"src/generated/orm"}]}'
-          git diff --exit-code -- src/generated/orm
+          buf generate --template '{"version":"v2","plugins":[{"local":"protoc-gen-orm-rust","opt":["storage_model"],"out":"../testdata/directory","strategy":"all"}]}'
+          git diff --exit-code -- src/generated/orm ../testdata/directory
   directory:
     runs-on: ubuntu-latest
     defaults:

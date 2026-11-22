@@ -15,6 +15,8 @@ Install the executable with `go install github.com/protobuf-orm/protoc-gen-orm-r
 
 For each ORM entity with a generated Get service, the plugin emits constructors for its key oneof, `pick`, optional `with_select`, and a router registration function. This first implementation handles scalar keys and composite keys containing scalars or top-level message references. Enum and nested message keys report a generation error. Database schema, CRUD implementations, and Payday policy are separate layers.
 
+For a storage generator, run the plugin a second time with `opt: [storage_model]` and `strategy: all`. Its `model.json` records resolved key types, field presence, defaults, immutability, relation targets, version and erase markers, and ordered compound indexes. The graph is shared with the upstream ORM service generator. The versioned output is deterministic across input orders. [Directory model](testdata/directory/model.json)
+
 ## Test
 
 `go test ./...` tests descriptor handling. The [directory example](example/README.md) exercises generated code with Diesel SQLite. The same Rust router serves a native Connect endpoint and a WASM Worker reached with the published TypeScript dRPC transport.
