@@ -1,0 +1,9 @@
+edition = "2023";
+package directory.v1;
+import "directory/v1/directory.proto";
+import "directory/v1/directory_svc.g.proto";
+
+// Exercise server-streaming flow control and subscription cancellation.
+service FeedService {
+  rpc Follow(UserGetRequest) returns (stream User);
+}

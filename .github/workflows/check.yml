@@ -1,0 +1,43 @@
+name: check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+      - run: go install .
+      - uses: bufbuild/buf-setup-action@v1
+      - name: Check generated ORM helpers
+        working-directory: example
+        run: |
+          buf generate --template '{"version":"v2","plugins":[{"local":"protoc-gen-orm-rust","out":"src/generated/orm"}]}'
+          git diff --exit-code -- src/generated/orm
+  directory:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo test --locked --features native
+      - run: cargo build --locked --release --target wasm32-unknown-unknown
+      - name: Prepare browser module
+        run: |
+          cargo install --locked wasm-bindgen-cli --version 0.2.130
+          wasm-bindgen --target web --out-dir web/public/pkg target/wasm32-unknown-unknown/release/directory_example.wasm
+      - name: Run Chromium interoperability test
+        working-directory: example/web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm test

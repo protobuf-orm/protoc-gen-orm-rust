@@ -1,0 +1,24 @@
+edition = "2023";
+package directory.v1;
+
+import "orm.proto";
+
+option go_package = "example.org/directory";
+option features.field_presence = IMPLICIT;
+
+message Tenant {
+  int32 id = 1 [(orm.field) = {key: true}];
+  option (orm.message) = {rpc: {get: {}}};
+}
+
+message User {
+  int32 id = 1 [(orm.field) = {key: true}];
+  Tenant tenant = 2 [(orm.edge) = {}];
+  string alias = 3;
+  option (orm.message) = {
+    rpc: {get: {}}
+    indexes: [{name: "alias", unique: true, refs: [
+      {name: "alias", number: 3}, {name: "tenant", number: 2}
+    ]}]
+  };
+}

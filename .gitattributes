@@ -1,0 +1,3 @@
+example/src/generated/** linguist-generated=true
+example/web/src/gen/** linguist-generated=true whitespace=-blank-at-eof
+example/proto/**/*_svc.g.proto linguist-generated=true

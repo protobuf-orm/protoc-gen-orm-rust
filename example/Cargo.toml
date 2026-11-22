@@ -1,0 +1,34 @@
+[package]
+name = "directory-example"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "directory-server"
+path = "src/bin/server.rs"
+required-features = ["native"]
+
+[features]
+native = ["connectrpc/server", "dep:tokio"]
+client = ["connectrpc/client"]
+
+[dependencies]
+buffa = { version = "=0.8.1", features = ["json"] }
+connectrpc = { version = "=0.8.2", default-features = false, features = ["json"] }
+diesel = { version = "=2.3.14", default-features = false, features = ["sqlite"] }
+futures = "0.3"
+serde = { version = "1", features = ["derive"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"], optional = true }
+libsqlite3-sys = { version = "0.35", features = ["bundled"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+drpc-rs = { git = "https://github.com/lesomnus/drpc-rs", rev = "2e9d63e2c21a908b88c3569c9c8d785b3b33893c" }
+sqlite-wasm-rs = { version = "=0.6.3", features = ["wasm-bindgen"] }
+wasm-bindgen = "=0.2.130"
+web-sys = { version = "0.3", features = ["MessagePort"] }
