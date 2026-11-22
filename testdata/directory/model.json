@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "entities": [
+    {
+      "name": "directory.v1.Tenant",
+      "key": "id",
+      "fields": [
+        {
+          "name": "id",
+          "json": "id",
+          "number": 1,
+          "kind": "INT32",
+          "immutable": true,
+          "unique": true
+        }
+      ],
+      "indexes": []
+    },
+    {
+      "name": "directory.v1.User",
+      "key": "id",
+      "fields": [
+        {
+          "name": "id",
+          "json": "id",
+          "number": 1,
+          "kind": "INT32",
+          "immutable": true,
+          "unique": true
+        },
+        {
+          "name": "tenant",
+          "json": "tenant",
+          "number": 2,
+          "kind": "MESSAGE",
+          "target": "directory.v1.Tenant"
+        },
+        {
+          "name": "alias",
+          "json": "alias",
+          "number": 3,
+          "kind": "STRING"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "alias",
+          "fields": [
+            "alias",
+            "tenant"
+          ],
+          "unique": true
+        }
+      ]
+    }
+  ]
+}
