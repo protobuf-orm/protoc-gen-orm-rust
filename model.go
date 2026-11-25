@@ -28,19 +28,23 @@ type modelEntity struct {
 	Indexes []modelIndex `json:"indexes"`
 }
 type modelField struct {
-	Name       string  `json:"name"`
-	JSON       string  `json:"json"`
-	Number     int32   `json:"number"`
-	Kind       string  `json:"kind"`
-	Collection string  `json:"collection,omitempty"`
-	Target     string  `json:"target,omitempty"`
-	Inverse    string  `json:"inverse,omitempty"`
-	Nullable   bool    `json:"nullable,omitempty"`
-	Immutable  bool    `json:"immutable,omitempty"`
-	Unique     bool    `json:"unique,omitempty"`
-	Default    *string `json:"default,omitempty"`
-	Version    bool    `json:"version,omitempty"`
-	Erased     bool    `json:"erased,omitempty"`
+	Name       string `json:"name"`
+	JSON       string `json:"json"`
+	Number     int32  `json:"number"`
+	Kind       string `json:"kind"`
+	Collection string `json:"collection,omitempty"`
+	Target     string `json:"target,omitempty"`
+	Inverse    string `json:"inverse,omitempty"`
+	// OnDelete is what becomes of this row when the row an edge names is
+	// deleted: RESTRICT, CASCADE or SET_NULL, and absent where the schema
+	// does not say, which leaves it to the storage generator's own default.
+	OnDelete  string  `json:"on_delete,omitempty"`
+	Nullable  bool    `json:"nullable,omitempty"`
+	Immutable bool    `json:"immutable,omitempty"`
+	Unique    bool    `json:"unique,omitempty"`
+	Default   *string `json:"default,omitempty"`
+	Version   bool    `json:"version,omitempty"`
+	Erased    bool    `json:"erased,omitempty"`
 }
 type modelIndex struct {
 	Name       string   `json:"name"`
@@ -80,6 +84,9 @@ func storageModel(files *protoregistry.Files, names []string, resp *pluginpb.Cod
 				field.Target = string(prop.Target().FullName())
 				if from := prop.Inverse(); from != nil {
 					field.Inverse = from.Name()
+				}
+				if v := prop.OnDelete(); v != ormpb.OnDelete_ON_DELETE_UNSPECIFIED {
+					field.OnDelete = strings.TrimPrefix(v.String(), "ON_DELETE_")
 				}
 				o := proto.GetExtension(d.Options(), ormpb.E_Edge).(*ormpb.EdgeOptions)
 				if o.HasDefault() {
